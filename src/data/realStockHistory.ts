@@ -49,7 +49,7 @@ export function getRealStockHistory(stockCode: string, totalDays: number = 125):
     '051910': { start: 410000, peak: 455000, trough: 295000, end: 315000 }, // LG화학
     '055550': { start: 44500, peak: 61500, trough: 42000, end: 56200 },    // 신한지주
     '028260': { start: 148000, peak: 168000, trough: 128000, end: 142000 }, // 삼성물산
-    '900010': { start: 21000, peak: 32500, trough: 19500, end: 28500 },     // K-AI로보틱스
+    '277810': { start: 155000, peak: 188000, trough: 124000, end: 142500 }, // 레인보우로보틱스
   };
 
   const profile = stockProfileMap[stockCode] || { start: 50000, peak: 65000, trough: 42000, end: 55000 };

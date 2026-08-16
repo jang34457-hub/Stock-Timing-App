@@ -31,7 +31,7 @@ export const StockChart: React.FC<StockChartProps> = ({
 
   const handleRefreshClick = async () => {
     if (onRefreshNaverData) {
-      setToastMessage('⏳ 실시간 주가 시세를 동기화 중입니다...');
+      setToastMessage('⏳ 네이버 금융 / 야후 파이낸스 실시간 시세를 동기화 중입니다...');
       await onRefreshNaverData(stock.code);
       setToastMessage('✅ 실시간 주가 시세 동기화가 완료되었습니다!');
       setTimeout(() => setToastMessage(null), 4000);
@@ -152,7 +152,7 @@ export const StockChart: React.FC<StockChartProps> = ({
       {/* 2. 분석차트 화면 전체 */}
       <div className={`transition-all duration-700 ${isLoadingNaver ? 'filter blur-md opacity-25 pointer-events-none' : 'filter-none opacity-100'}`}>
         
-        {/* 🌟 상단 헤더 구역: 종목 이름과 완벽히 같은 수평 높이(Row)에 버튼 우측 정렬! */}
+        {/* 🌟 상단 헤더 구역: 종목 이름과 완벽히 같은 수평 높이의 오른쪽 버튼 간격 확대 지정! */}
         <div className="flex flex-row items-center justify-between gap-4 mb-8 md:mb-10 pb-4 border-b border-slate-800/60">
           {/* 왼쪽: 종목명 및 코스피/코스닥 뱃지 */}
           <div className="flex items-center space-x-3">
@@ -163,13 +163,13 @@ export const StockChart: React.FC<StockChartProps> = ({
             </span>
           </div>
 
-          {/* 🌟 오른쪽: 종목 이름과 동일한 높이의 우측 끝 버튼 배치 ('시세 동기화' & 'X, Y 값 설정') */}
-          <div className="flex items-center space-x-3">
+          {/* 🌟 오른쪽: '시세 동기화' 버튼과 'X, Y 값 설정' 버튼 사이 간격 벌림 지정 (space-x-6 md:space-x-8) */}
+          <div className="flex items-center space-x-6 md:space-x-8">
             {onRefreshNaverData && (
               <button
                 onClick={handleRefreshClick}
                 disabled={isLoadingNaver}
-                className="btn btn-outline text-xs md:text-sm px-3.5 py-2 flex items-center space-x-2 border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 shadow-sm"
+                className="btn btn-outline text-xs md:text-sm px-4 py-2 flex items-center space-x-2 border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 shadow-sm"
                 title="실시간 주가 시세 수집 및 갱신"
               >
                 <RefreshCw className={`w-4 h-4 text-indigo-400 ${isLoadingNaver ? 'animate-spin' : ''}`} />
@@ -179,7 +179,7 @@ export const StockChart: React.FC<StockChartProps> = ({
 
             <button
               onClick={() => onOpenConfigModal(stock)}
-              className="btn btn-primary text-xs md:text-sm px-3.5 py-2 flex items-center space-x-2 shadow-sm"
+              className="btn btn-primary text-xs md:text-sm px-4 py-2 flex items-center space-x-2 shadow-sm"
               title="매도(X1,X2) 및 매수(Y1,Y2) 추천 임계값 설정"
             >
               <Settings className="w-4 h-4" />
