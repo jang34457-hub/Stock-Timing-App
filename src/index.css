@@ -162,6 +162,51 @@ body {
   font-weight: 500 !important;
 }
 
+/* 📱 스마트폰 모바일 전용 반응형 터치 UI 최적화 미디어 쿼리 (Mobile Responsive) */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .logo-title {
+    font-size: 0.95rem;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+
+  .giant-search-wrapper {
+    max-width: 100% !important;
+    margin: 8px auto 20px auto !important;
+    padding: 0 4px;
+  }
+
+  .giant-search-input {
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    font-size: 15px !important;
+    padding-left: 42px !important;
+    padding-right: 40px !important;
+    border-radius: 14px !important;
+  }
+
+  .giant-search-input::placeholder {
+    font-size: 14px !important;
+  }
+
+  .table-card {
+    border-radius: 14px;
+  }
+
+  .custom-table th, .custom-table td {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+}
+
 .tab-btn.active {
   color: #818cf8;
   background: rgba(99, 102, 241, 0.12);
@@ -208,6 +253,22 @@ body {
   align-items: center;
   justify-content: center;
   border: 2px solid #0f172a;
+}
+
+/* Responsive helpers for crisp desktop & mobile views */
+@media (min-width: 768px) {
+  .md\:hidden {
+    display: none !important;
+  }
+  .md\:block {
+    display: block !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .hidden.md\:block {
+    display: none !important;
+  }
 }
 
 /* Main Content Padding */

@@ -12,12 +12,7 @@ interface WatchlistProps {
 }
 
 /**
- * 🌟 마이 관심종목 대시보드 컴포넌트
- * - 🚀 관심종목 전용 중앙 52px 컴팩트 검색창 (giant-search-wrapper)
- * - 🚀 라벨명: "관심종목 검색"
- * - 🚀 인풋 힌트: "종목명 또는 종목코드"
- * - 🚀 드롭다운: KOSPI/KOSDAQ 배지 및 우측 버튼 제거, 오직 '종목명 / 종목코드' 글자 터치 선택
- * - 🚀 마우스 호버 시 살짝 팝업(hover:scale-[1.015]) & 네온 하이라이트 연출
+ * 🌟 마이 관심종목 대시보드 컴포넌트 (데스크톱 & 모바일 완벽 대응)
  */
 export const Watchlist: React.FC<WatchlistProps> = ({
   watchlistCalculated,
@@ -98,19 +93,16 @@ export const Watchlist: React.FC<WatchlistProps> = ({
 
   return (
     <div className="page-container">
-      {/* 🚀 관심종목 전용 중앙 52px 검색창 섹션 */}
+      {/* 🚀 52px 컴팩트 중앙 서치바 바디 */}
       <div className="giant-search-wrapper">
-        {/* 상단 단일 라벨 헤더 */}
         <div className="w-full flex items-center justify-start mb-2 px-1">
           <span className="text-base font-bold text-slate-200">
             관심종목 검색
           </span>
         </div>
 
-        {/* 52px 서치박스 바디 */}
         <div ref={searchContainerRef} className="relative w-full z-30">
           <div className="relative flex items-center w-full">
-            {/* 컴팩트 돋보기 아이콘 */}
             <Search className="absolute left-4 w-5 h-5 text-blue-400 z-10 pointer-events-none" />
             
             <input
@@ -136,7 +128,7 @@ export const Watchlist: React.FC<WatchlistProps> = ({
             )}
           </div>
 
-          {/* 💡 실시간 종목명 / 종목코드 터치 선택 드롭다운 */}
+          {/* 실시간 종목명 / 종목코드 드롭다운 */}
           {isDropdownOpen && searchQuery.trim() !== '' && searchResults.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-2.5 bg-slate-950 border-2 border-blue-500/70 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden max-h-[440px] overflow-y-auto z-50 backdrop-blur-3xl">
               <div className="p-2 flex flex-col divide-y divide-slate-800/80">
@@ -152,7 +144,6 @@ export const Watchlist: React.FC<WatchlistProps> = ({
                           : 'hover:bg-gradient-to-r hover:from-blue-600/30 hover:via-indigo-600/25 hover:to-blue-600/15 border border-transparent hover:border-blue-500/40 hover:scale-[1.015] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 text-slate-100 hover:text-white active:scale-100 group'
                       }`}
                     >
-                      {/* 🔥 오직 '종목명 / 종목코드' 글자 표기 */}
                       <div className="flex items-baseline gap-3">
                         <span className="font-extrabold text-xl text-slate-100 group-hover:text-blue-200 transition-colors">
                           {stock.name}
@@ -162,7 +153,6 @@ export const Watchlist: React.FC<WatchlistProps> = ({
                         </span>
                       </div>
 
-                      {/* 추가 여부 상태만 표기 */}
                       {isAlreadyAdded && (
                         <span className="text-xs text-emerald-400 font-bold flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
                           <Check className="w-3.5 h-3.5" /> 추가됨
@@ -197,7 +187,7 @@ export const Watchlist: React.FC<WatchlistProps> = ({
           </p>
         </div>
       ) : (
-        /* 📊 하단 관심종목 표 */
+        /* 📊 깨짐 없는 관심종목 메인 대시보드 표 */
         <div className="table-card border border-slate-800 rounded-3xl shadow-2xl overflow-hidden bg-slate-900/80 backdrop-blur-md">
           <div className="table-responsive">
             <table className="custom-table">

@@ -1,79 +1,81 @@
 import React from 'react';
 import { StockInfo } from '../types/stock';
-import { Plus, Check, LineChart, AlertTriangle, ArrowUpRight, ArrowDownRight, RefreshCw, Loader2 } from 'lucide-react';
+import { LineChart, Plus, Check, RefreshCw, AlertTriangle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface Top20ListProps {
-  /** 대세주 종목 리스트 */
   stocks: StockInfo[];
-  /** 현재 관심종목 코드 배열 */
   watchlistCodes: string[];
-  /** 관심종목 토글 핸들러 */
   onToggleWatchlist: (stock: StockInfo) => void;
-  /** 차트 분석 보기 핸들러 */
   onSelectStockChart: (stock: StockInfo) => void;
-  /** Top 20 시세 동기화 진행 중 여부 */
-  isLoadingTop20?: boolean;
-  /** 수동 시세 새로고침 동기화 핸들러 */
-  onRefreshTop20?: () => void;
-  /** 마지막 동기화 일시 문자열 */
-  lastSyncTime?: string | null;
-  /** 🌟 수집 진행 단계 표시 (예: { current: 14, total: 20 }) */
-  syncProgress?: { current: number; total: number } | null;
+  isLoadingTop20: boolean;
+  onRefreshTop20: () => void;
+  lastSyncTime: string | null;
+  syncProgress: { current: number; total: number };
 }
 
 /**
- * 🌟 대한민국 대세주 Top 20 리스트 컴포넌트
+ * 🌟 대한민국 20대 대세주 대시보드 컴포넌트
  */
 export const Top20List: React.FC<Top20ListProps> = ({
   stocks,
   watchlistCodes,
   onToggleWatchlist,
   onSelectStockChart,
-  isLoadingTop20 = false,
+  isLoadingTop20,
   onRefreshTop20,
   lastSyncTime,
   syncProgress,
 }) => {
   return (
     <div className="page-container">
-      <div className="page-header flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* 헤더 및 동기화 버튼 */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="page-title flex items-center space-x-2 flex-wrap gap-2">
-            <span>🔥 오늘의 대세주 Top 20</span>
-
-            {/* 수집 진행 상황 시각화 */}
-            {syncProgress ? (
-              <span className="text-xs font-semibold text-indigo-300 bg-indigo-950/80 border border-indigo-500/50 px-3 py-1 rounded-full flex items-center space-x-1.5 animate-pulse">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
-                <span>네이버 6개월 시세 수집 중 ({syncProgress.current} / {syncProgress.total})</span>
-              </span>
-            ) : lastSyncTime ? (
-              <span className="text-xs font-normal text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
-                실시간 동기화 완료 ({lastSyncTime})
-              </span>
-            ) : null}
-          </h1>
+          <h2 className="page-title flex items-center gap-2">
+            <span>🔥</span> 대한민국 대세주 TOP 20
+          </h2>
           <p className="page-description">
-            앱 구동 날짜 기준 당일 거래대금 상위 20개 종목입니다. 원하는 종목을 관심종목에 추가하여 3일 이동평균 기준 2단계 매매 타이밍 푸시 알림을 받아보세요.
+            코스피/코스닥 시가총액 및 거래대금 최상위 20개 종목의 3일 이동평균선 기반 타이밍 모니터링
           </p>
         </div>
 
-        {onRefreshTop20 && (
-          <div className="flex items-center space-x-2 self-start md:self-auto">
-            <button
-              onClick={onRefreshTop20}
-              disabled={isLoadingTop20}
-              className={`btn btn-sm ${isLoadingTop20 ? 'btn-outline opacity-70 cursor-not-allowed' : 'btn-primary'} flex items-center space-x-1.5`}
-              title="네이버 금융에서 구동일 기준 실시간 시세를 최신화합니다."
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingTop20 ? 'animate-spin' : ''}`} />
-              <span>{isLoadingTop20 ? '실시간 동기화 중...' : '시세 최신화'}</span>
-            </button>
-          </div>
-        )}
+        <div className="flex items-center space-x-3">
+          {lastSyncTime && (
+            <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+              동기화: {lastSyncTime}
+            </span>
+          )}
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={onRefreshTop20}
+            disabled={isLoadingTop20}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoadingTop20 ? 'animate-spin' : ''}`} />
+            {isLoadingTop20
+              ? `시세수집 중 (${syncProgress.current}/${syncProgress.total})...`
+              : '시세 동기화'}
+          </button>
+        </div>
       </div>
 
-      <div className="table-card">
+      {/* 동기화 진행 상태 바 */}
+      {isLoadingTop20 && (
+        <div className="mb-4 bg-slate-900 border border-indigo-500/30 rounded-xl p-3">
+          <div className="flex justify-between text-xs text-indigo-300 font-semibold mb-1">
+            <span>네이버 파이낸스 실시간 시세 수집 중...</span>
+            <span>{Math.round((syncProgress.current / syncProgress.total) * 100)}%</span>
+          </div>
+          <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div
+              className="bg-indigo-500 h-full transition-all duration-300"
+              style={{ width: `${(syncProgress.current / syncProgress.total) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 📊 대세주 메인 대시보드 표 */}
+      <div className="table-card border border-slate-800 rounded-3xl shadow-2xl overflow-hidden bg-slate-900/80 backdrop-blur-md">
         <div className="table-responsive">
           <table className="custom-table">
             <thead>

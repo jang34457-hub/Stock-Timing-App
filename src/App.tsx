@@ -237,7 +237,7 @@ export const App: React.FC = () => {
             isLoadingTop20={isLoadingTop20}
             onRefreshTop20={refreshAllTop20Stocks}
             lastSyncTime={lastSyncTime}
-            syncProgress={syncProgress}
+            syncProgress={syncProgress || { current: 0, total: 20 }}
           />
         )}
 
