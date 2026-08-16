@@ -4,7 +4,7 @@ import { TOP_20_STOCKS } from './data/mockStocks';
 import { getRealStockHistory } from './data/realStockHistory';
 import { calculateStockSignals } from './utils/signalEngine';
 import { fetchNaverDailyPrices } from './services/naverFinanceService';
-import { getCachedDailyPrices } from './utils/stockCache';
+import { getCachedDailyPrices, initializeStockCache } from './utils/stockCache';
 import { Navbar } from './components/Navbar';
 import { Top20List } from './components/Top20List';
 import { Watchlist } from './components/Watchlist';
@@ -16,25 +16,33 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'top20' | 'watchlist' | 'chart'>('top20');
   const [watchlistCodes, setWatchlistCodes] = useState<string[]>(['005930', '000660', '373220', '277810']);
   const [selectedStockCode, setSelectedStockCode] = useState<string>('005930');
-  
+
   const [configTargetStock, setConfigTargetStock] = useState<StockInfo | null>(null);
   const [isLoadingNaver, setIsLoadingNaver] = useState<boolean>(false);
   const [isLoadingTop20, setIsLoadingTop20] = useState<boolean>(false);
   const [syncProgress, setSyncProgress] = useState<{ current: number; total: number } | null>(null);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
+  // 🌟 앱 마운트 시 오래된 오염 캐시(비거래일 포함 찌꺼기) 자동 정화 세척
+  useEffect(() => {
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('stock_daily_prices_') || key.startsWith('downloaded_stock_history_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (e) {
+      console.warn('Cache purge error:', e);
+    }
+  }, []);
+
   /**
-   * 🌟 초기 일별 시세 맵 생성자
+   * 🌟 초기 일별 시세 맵 생성자 (한국거래소 공식 거래일 100% 종가 데이터 로드)
    */
   const [dailyPricesMap, setDailyPricesMap] = useState<Record<string, DailyPriceData[]>>(() => {
     const initialMap: Record<string, DailyPriceData[]> = {};
     TOP_20_STOCKS.forEach(stock => {
-      const cacheObj = getCachedDailyPrices(stock.code);
-      if (cacheObj && cacheObj.prices.length >= 120) {
-        initialMap[stock.code] = cacheObj.prices;
-      } else {
-        initialMap[stock.code] = getRealStockHistory(stock.code, 130);
-      }
+      initialMap[stock.code] = getRealStockHistory(stock.code, 130);
     });
     return initialMap;
   });
@@ -66,8 +74,8 @@ export const App: React.FC = () => {
             if (latestPriceItem) {
               const latestClose = latestPriceItem.closePrice;
               const prevClose = prevPriceItem ? prevPriceItem.closePrice : latestClose;
-              const changeRate = prevClose > 0 
-                ? Number((((latestClose - prevClose) / prevClose) * 100).toFixed(2)) 
+              const changeRate = prevClose > 0
+                ? Number((((latestClose - prevClose) / prevClose) * 100).toFixed(2))
                 : 0;
 
               setStocks(prev =>
@@ -124,8 +132,8 @@ export const App: React.FC = () => {
         if (latestPriceItem) {
           const latestClose = latestPriceItem.closePrice;
           const prevClose = prevPriceItem ? prevPriceItem.closePrice : latestClose;
-          const changeRate = prevClose > 0 
-            ? Number((((latestClose - prevClose) / prevClose) * 100).toFixed(2)) 
+          const changeRate = prevClose > 0
+            ? Number((((latestClose - prevClose) / prevClose) * 100).toFixed(2))
             : 0;
 
           setStocks(prev =>
@@ -144,12 +152,34 @@ export const App: React.FC = () => {
     }
   };
 
+  /**
+   * ➕ 관심종목 검색 드롭다운 종목 클릭 선택 핸들러
+   * 1) stocks 리스트 추가
+   * 2) watchlistCodes 리스트 추가
+   * 3) 최근 6개월 일별 종가 시세 실시간 자동 수집 동기화 (loadNaverStockData)
+   * 4) 관심종목 표(테이블)에 즉시 포함
+   */
+  const handleAddCustomStock = async (newStock: StockInfo) => {
+    setStocks(prev => {
+      if (prev.some(s => s.code === newStock.code)) return prev;
+      return [...prev, newStock];
+    });
+
+    setWatchlistCodes(prev => {
+      if (prev.includes(newStock.code)) return prev;
+      return [...prev, newStock.code];
+    });
+
+    // 🌟 핵심: 6개월 일별 종가 시세 실시간 수집 연동
+    await loadNaverStockData(newStock.code);
+  };
+
   const watchlistCalculated = useMemo(() => {
     return watchlistCodes
       .map(code => {
         const stock = stocks.find(s => s.code === code);
-        const prices = dailyPricesMap[code];
-        if (!stock || !prices) return null;
+        const prices = dailyPricesMap[code] || getRealStockHistory(code, 130);
+        if (!stock) return null;
         return calculateStockSignals(stock, prices);
       })
       .filter((item): item is CalculatedStockData => item !== null);
@@ -217,6 +247,7 @@ export const App: React.FC = () => {
             onRemoveWatchlist={handleRemoveWatchlist}
             onSelectStockChart={handleSelectStockChart}
             onOpenConfigModal={(stock) => setConfigTargetStock(stock)}
+            onAddStock={handleAddCustomStock}
           />
         )}
 

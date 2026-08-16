@@ -24,13 +24,16 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: #0f172a;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #334155;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
@@ -113,6 +116,50 @@ body {
 .tab-btn:hover {
   color: #f1f5f9;
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* 🚀 관심종목 전용 52px 픽셀 고정 중앙 서치바 전역 스타일 (Fixed Compact Center Search Box) */
+.giant-search-wrapper {
+  width: 100% !important;
+  max-width: 580px !important;
+  margin: 10px auto 30px auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.giant-search-input {
+  width: 100% !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding-left: 48px !important;
+  padding-right: 48px !important;
+  border-width: 2px !important;
+  border-radius: 16px !important;
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  color: #f8fafc !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.giant-search-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.4) !important;
+  outline: none !important;
+}
+
+.giant-search-input::placeholder {
+  color: #64748b !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
 }
 
 .tab-btn.active {
@@ -332,13 +379,25 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slideLeft {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 .animate-fade-in {

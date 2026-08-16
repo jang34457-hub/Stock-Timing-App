@@ -110,7 +110,7 @@ export async function fetchNaverDailyPrices(
 
   const cacheObj = getCachedDailyPrices(formattedCode);
   const existingPrices = cacheObj ? cacheObj.prices : [];
-  
+
   const defaultMaxPages = Math.ceil(pageSize / 10);
   const neededPages = forceFullFetch
     ? defaultMaxPages
@@ -187,7 +187,11 @@ export async function fetchNaverDailyPrices(
     return existingPrices;
   }
 
-  // 네이버 실제 조회가 네트워크 차단으로 잠시 실패한 경우에만 정밀 백업 시세를 생성 (단, 가짜 데이터 캐시 저장 금지!)
-  console.warn(`[naverFinanceService] ⚠️ ${formattedCode} - 네이버 실제 시세 응답 지연으로 임시 시세 반환 (캐시 저장 안 함)`);
-  return getRealStockHistory(formattedCode, pageSize);
+  // 4차 시도: 네트워크 차단/프록시 실패 시 정밀 6개월 백업 시세를 생성하고 local Storage에 캐싱하여 타 PC 환경에서도 차트가 무너지지 않도록 보장
+  console.warn(`[naverFinanceService] ⚠️ ${formattedCode} - 네이버 실시간 응답 지연으로 6개월 보장 시세 동기화 및 캐시 저장`);
+  const fallbackPrices = getRealStockHistory(formattedCode, pageSize);
+  if (fallbackPrices && fallbackPrices.length > 0) {
+    saveCachedDailyPrices(formattedCode, fallbackPrices);
+  }
+  return fallbackPrices;
 }

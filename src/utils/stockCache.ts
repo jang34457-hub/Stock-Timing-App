@@ -137,3 +137,42 @@ export function calculateNeededPages(
   const neededPages = Math.ceil(estimatedTradingDays / 10);
   return Math.min(defaultMaxPages, Math.max(1, neededPages));
 }
+
+/**
+ * 앱 최초 실행 시 타인 PC 브라우저 환경 등 캐시가 비어 있거나 오차가 큰 경우,
+ * 기본 6개월 시세 데이터를 자동 생성하여 local Storage에 초기화/갱신합니다.
+ * @param {Array<{ code: string; currentPrice?: number }>} stocks - 대상 종목 리스트
+ * @param {(code: string, totalDays?: number) => DailyPriceData[]} historyGenerator - 6개월 주가 데이터 생성 함수
+ * @returns {void}
+ */
+export function initializeStockCache(
+  stocks: Array<{ code: string; currentPrice?: number }>,
+  historyGenerator: (code: string, totalDays?: number) => DailyPriceData[]
+): void {
+  try {
+    stocks.forEach(stock => {
+      const existing = getCachedDailyPrices(stock.code);
+      let needsRefresh = !existing || !existing.prices || existing.prices.length < 120;
+
+      // 💡 기존 캐시의 마지막 종가가 현재가(currentPrice)와 2% 이상 차이나는 경우 자동 재동기화
+      if (existing && existing.prices && existing.prices.length > 0 && stock.currentPrice) {
+        const lastCachedClose = existing.prices[existing.prices.length - 1].closePrice;
+        const diffRate = Math.abs(lastCachedClose - stock.currentPrice) / stock.currentPrice;
+        if (diffRate > 0.02) {
+          needsRefresh = true;
+        }
+      }
+
+      if (needsRefresh) {
+        const initialPrices = historyGenerator(stock.code, 130);
+        if (initialPrices && initialPrices.length > 0) {
+          saveCachedDailyPrices(stock.code, initialPrices);
+          console.log(`[stockCache] 💡 ${stock.code} 정밀 6개월 시세 캐시 자동 갱신 완료 (${initialPrices.length}건)`);
+        }
+      }
+    });
+  } catch (error) {
+    console.warn('[stockCache] 초기 캐시 데이터 생성 중 예외 발생:', error);
+  }
+}
+
